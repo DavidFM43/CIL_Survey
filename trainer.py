@@ -24,7 +24,7 @@ def _train(args):
     time_str = datetime.datetime.now().strftime('%m%d-%H-%M-%S-%f')[:-3]
     args['time_str'] = time_str
     
-    init_cls = 0 if args ["init_cls"] == args["increment"] else args["init_cls"]
+    init_cls = 0 if args["init_cls"] == args["increment"] else args["init_cls"]
     exp_name = "{}_{}_{}_{}_B{}_Inc{}".format(
         args["time_str"],
         args["dataset"],
