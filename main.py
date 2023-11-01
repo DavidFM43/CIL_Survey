@@ -4,7 +4,9 @@ from trainer import train
 
 
 def main():
-    args = setup_parser().parse_args()
+    # args = setup_parser().parse_args()
+    # line included for debug purposes
+    args = setup_parser().parse_args(["-model", "finetune", "-init", "5", "-incre", "5", "-p", "benchmark", "-d", "0", "1"])
     args.config = f"./exps/{args.model_name}.json"
     param = load_json(args.config)
     args = vars(args)  # Converting argparse Namespace to a dict.
