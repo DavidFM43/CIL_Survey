@@ -31,9 +31,7 @@ class BaseLearner(object):
 
     @property
     def exemplar_size(self):
-        assert len(self._data_memory) == len(
-            self._targets_memory
-        ), "Exemplar size error."
+        assert len(self._data_memory) == len(self._targets_memory), "Exemplar size error."
         return len(self._targets_memory)
 
     @property

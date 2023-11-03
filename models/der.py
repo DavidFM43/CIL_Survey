@@ -49,6 +49,7 @@ class DER(BaseLearner):
             "Learning on {}-{}".format(self._known_classes, self._total_classes)
         )
 
+        # freeze previous convnets
         if self._cur_task > 0:
             for i in range(self._cur_task):
                 for p in self._network.convnets[i].parameters():
@@ -84,11 +85,14 @@ class DER(BaseLearner):
 
     def train(self):
         self._network.train()
+
         if len(self._multiple_gpus) > 1 :
             self._network_module_ptr = self._network.module
         else:
             self._network_module_ptr = self._network
+
         self._network_module_ptr.convnets[-1].train()
+
         if self._cur_task >= 1:
             for i in range(self._cur_task):
                 self._network_module_ptr.convnets[i].eval()

@@ -31,6 +31,7 @@ class DataManager(object):
     def get_dataset(
         self, indices, source, mode, appendent=None, ret_data=False, m_rate=None
     ):
+        # get dataset
         if source == "train":
             x, y = self._train_data, self._train_targets
         elif source == "test":
@@ -38,6 +39,7 @@ class DataManager(object):
         else:
             raise ValueError("Unknown data source {}.".format(source))
 
+        # apply transformations
         if mode == "train":
             trsf = transforms.Compose([*self._train_trsf, *self._common_trsf])
         elif mode == "flip":
@@ -52,8 +54,9 @@ class DataManager(object):
             trsf = transforms.Compose([*self._test_trsf, *self._common_trsf])
         else:
             raise ValueError("Unknown mode {}.".format(mode))
-
         data, targets = [], []
+        
+        # filter the dataset according to targets indices
         for idx in indices:
             if m_rate is None:
                 class_data, class_targets = self._select(
@@ -149,6 +152,7 @@ class DataManager(object):
         self._common_trsf = idata.common_trsf
 
         # Order
+        # order is seems to be already defined inside idata
         order = [i for i in range(len(np.unique(self._train_targets)))]
         if shuffle:
             np.random.seed(seed)
@@ -208,6 +212,9 @@ class DummyDataset(Dataset):
 
 
 def _map_new_class_index(y, order):
+    # order is a permutation array
+    # x -> pi(x)
+    # x -> pi^{-1}(x)
     return np.array(list(map(lambda x: order.index(x), y)))
 
 
