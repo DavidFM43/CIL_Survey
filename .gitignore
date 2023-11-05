@@ -158,3 +158,9 @@ logs/
 
 # training datasets
 data/
+
+# results
+results/
+
+# checkpoints
+checkpoints/
