@@ -21,7 +21,7 @@ epochs = 80
 lrate = 0.1
 milestones = [40, 70]
 lrate_decay = 0.1
-batch_size = 128 
+batch_size = 128
 weight_decay = 2e-4
 num_workers = 8
 
@@ -40,11 +40,13 @@ class Finetune(BaseLearner):
         self._total_classes = self._known_classes + data_manager.get_task_size(
             self._cur_task
         )
+        # incorporate new classes into the classifier
         self._network.update_fc(self._total_classes)
         logging.info(
             "Learning on {}-{}".format(self._known_classes, self._total_classes)
         )
 
+        # setup data
         train_dataset = data_manager.get_dataset(
             np.arange(self._known_classes, self._total_classes),
             source="train",
@@ -70,7 +72,7 @@ class Finetune(BaseLearner):
         self._network.to(self._device)
         if self._cur_task == 0:
             optimizer = optim.SGD(
-                self._network.parameters(),  
+                self._network.parameters(),
                 momentum=0.9,
                 lr=init_lr,
                 weight_decay=init_weight_decay,
@@ -79,11 +81,11 @@ class Finetune(BaseLearner):
             #     optimizer=optimizer, milestones=init_milestones, gamma=init_lr_decay
             # )
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-                optimizer, 
+                optimizer,
                 T_max=init_epoch,
-            ) #check
+            )  # check
 
-            if self.args['skip']:
+            if self.args["skip"]:
                 if len(self._multiple_gpus) > 1:
                     self._network = self._network.module
                 load_acc = self._network.load_checkpoint(self.args)
@@ -96,7 +98,7 @@ class Finetune(BaseLearner):
                 self._init_train(train_loader, test_loader, optimizer, scheduler)
         else:
             optimizer = optim.SGD(
-                self._network.parameters(),  
+                self._network.parameters(),
                 lr=lrate,
                 momentum=0.9,
                 weight_decay=weight_decay,
@@ -156,7 +158,6 @@ class Finetune(BaseLearner):
         logging.info("Save checkpoint successfully!")
 
     def _update_representation(self, train_loader, test_loader, optimizer, scheduler):
-
         prog_bar = tqdm(range(epochs))
         for _, epoch in enumerate(prog_bar):
             self._network.train()

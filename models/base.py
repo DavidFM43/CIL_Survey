@@ -164,6 +164,7 @@ class BaseLearner(object):
         return np.argsort(scores, axis=1)[:, : self.topk], y_true  # [N, topk]
 
     def _extract_vectors(self, loader):
+        """Extract feature vectors"""
         self._network.eval()
         vectors, targets = [], []
         for _, _inputs, _targets in loader:
@@ -187,6 +188,7 @@ class BaseLearner(object):
         dummy_data, dummy_targets = copy.deepcopy(self._data_memory), copy.deepcopy(
             self._targets_memory
         )
+        # means of images features
         self._class_means = np.zeros((self._total_classes, self.feature_dim))
         self._data_memory, self._targets_memory = np.array([]), np.array([])
 
@@ -220,6 +222,7 @@ class BaseLearner(object):
 
     def _construct_exemplar(self, data_manager, m):
         logging.info("Constructing exemplars...({} per classes)".format(m))
+        # add the classes of the last stage to the exemplar set
         for class_idx in range(self._known_classes, self._total_classes):
             data, targets, idx_dataset = data_manager.get_dataset(
                 np.arange(class_idx, class_idx + 1),
@@ -231,10 +234,11 @@ class BaseLearner(object):
                 idx_dataset, batch_size=batch_size, shuffle=False, num_workers=4
             )
             vectors, _ = self._extract_vectors(idx_loader)
+            # normalize vectors
             vectors = (vectors.T / (np.linalg.norm(vectors.T, axis=0) + EPSILON)).T
             class_mean = np.mean(vectors, axis=0)
 
-            # Select
+            # select exemplars
             selected_exemplars = []
             exemplar_vectors = []  # [n, feature_dim]
             for k in range(1, m + 1):

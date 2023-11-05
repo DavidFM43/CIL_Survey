@@ -44,16 +44,18 @@ class Replay(BaseLearner):
         self._total_classes = self._known_classes + data_manager.get_task_size(
             self._cur_task
         )
+        # incorporate new classes into the classifier
         self._network.update_fc(self._total_classes)
         logging.info(
             "Learning on {}-{}".format(self._known_classes, self._total_classes)
         )
 
-        # Loader
+        # setup data
         train_dataset = data_manager.get_dataset(
             np.arange(self._known_classes, self._total_classes),
             source="train",
             mode="train",
+            # add exemplar set to the training data
             appendent=self._get_memory(),
         )
         self.train_loader = DataLoader(
@@ -66,11 +68,11 @@ class Replay(BaseLearner):
             test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
         )
 
-        # Procedure
         if len(self._multiple_gpus) > 1:
             self._network = nn.DataParallel(self._network, self._multiple_gpus)
+        # stage training
         self._train(self.train_loader, self.test_loader)
-
+        # update exemplar set
         self.build_rehearsal_memory(data_manager, self.samples_per_class)
         if len(self._multiple_gpus) > 1:
             self._network = self._network.module
@@ -88,7 +90,7 @@ class Replay(BaseLearner):
                 optimizer=optimizer, milestones=init_milestones, gamma=init_lr_decay
             )
 
-            if self.args['skip'] :
+            if self.args["skip"]:
                 if len(self._multiple_gpus) > 1:
                     self._network = self._network.module
                 load_acc = self._network.load_checkpoint(self.args)
