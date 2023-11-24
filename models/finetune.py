@@ -30,7 +30,7 @@ class Finetune(BaseLearner):
     def __init__(self, args):
         super().__init__(args)
         self.args = args
-        self._network = IncrementalNet(args["convnet_type"], False)
+        self._network = IncrementalNet(args["convnet_type"], pretrained=False)
 
     def after_task(self):
         self._known_classes = self._total_classes
@@ -46,7 +46,7 @@ class Finetune(BaseLearner):
             "Learning on {}-{}".format(self._known_classes, self._total_classes)
         )
 
-        # setup data
+        # setup datasets and dataloaders
         train_dataset = data_manager.get_dataset(
             np.arange(self._known_classes, self._total_classes),
             source="train",

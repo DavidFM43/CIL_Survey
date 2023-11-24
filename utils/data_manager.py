@@ -9,7 +9,9 @@ from utils.data import iCIFAR10, iCIFAR100, iImageNet100, iImageNet1000
 class DataManager(object):
     def __init__(self, dataset_name, shuffle, seed, init_cls, increment):
         self.dataset_name = dataset_name
+        # download data and setup variables
         self._setup_data(dataset_name, shuffle, seed)
+
         assert init_cls <= len(self._class_order), "No enough classes."
         self._increments = [init_cls]
         while sum(self._increments) + increment < len(self._class_order):
