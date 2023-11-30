@@ -62,6 +62,7 @@ class Finetune(BaseLearner):
             test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
         )
 
+        # train 
         if len(self._multiple_gpus) > 1:
             self._network = nn.DataParallel(self._network, self._multiple_gpus)
         self._train(self.train_loader, self.test_loader)

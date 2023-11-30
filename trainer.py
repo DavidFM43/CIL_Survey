@@ -25,40 +25,17 @@ def _train(args):
     args['time_str'] = time_str
     
     init_cls = 0 if args["init_cls"] == args["increment"] else args["init_cls"]
-    exp_name = "{}_{}_{}_{}_B{}_Inc{}".format(
-        args["time_str"],
-        args["dataset"],
-        args["convnet_type"],
-        args["seed"],
-        init_cls,
-        args["increment"],
-    )
+    exp_name = "{}_{}_{}_{}_B{}_Inc{}".format(args["time_str"], args["dataset"], args["convnet_type"], args["seed"], init_cls, args["increment"])
     args['exp_name'] = exp_name
 
     if args['debug']:
-        logfilename = "logs/debug/{}/{}/{}/{}".format( 
-            args["prefix"],
-            args["dataset"],
-            args["model_name"],
-            args["exp_name"]
-        )
+        logfilename = "logs/debug/{}/{}/{}/{}".format(args["prefix"], args["dataset"], args["model_name"], args["exp_name"])
     else:
-        logfilename = "logs/{}/{}/{}/{}".format( 
-            args["prefix"],
-            args["dataset"],
-            args["model_name"],
-            args["exp_name"]
-        )
+        logfilename = "logs/{}/{}/{}/{}".format(args["prefix"], args["dataset"], args["model_name"], args["exp_name"])
 
     args['logfilename'] = logfilename
 
-    csv_name = "{}_{}_{}_B{}_Inc{}".format( 
-        args["dataset"],
-        args["seed"],
-        args["convnet_type"],
-        init_cls,
-        args["increment"],
-    )
+    csv_name = "{}_{}_{}_B{}_Inc{}".format(args["dataset"], args["seed"], args["convnet_type"], init_cls, args["increment"])
     args['csv_name'] = csv_name
     os.makedirs(logfilename, exist_ok=True)
 
@@ -81,13 +58,7 @@ def _train(args):
     _set_random()
     _set_device(args)
     print_args(args)
-    data_manager = DataManager(
-        args["dataset"],
-        args["shuffle"],
-        args["seed"],
-        args["init_cls"],
-        args["increment"],
-    )
+    data_manager = DataManager(args["dataset"], args["shuffle"], args["seed"], args["init_cls"], args["increment"])
     model = factory.get_model(args["model_name"], args)
 
     cnn_curve, nme_curve, no_nme = {"top1": [], "top5": []}, {"top1": [], "top5": []}, True
@@ -96,9 +67,7 @@ def _train(args):
     
     for task in range(data_manager.nb_tasks):
         logging.info("All params: {}".format(count_parameters(model._network)))
-        logging.info(
-            "Trainable params: {}".format(count_parameters(model._network, True))
-        )
+        logging.info("Trainable params: {}".format(count_parameters(model._network, True)))
         
         model.incremental_train(data_manager)
         if task == data_manager.nb_tasks-1:

@@ -140,6 +140,7 @@ class DataManager(object):
         ), DummyDataset(val_data, val_targets, trsf, self.use_path)
 
     def _setup_data(self, dataset_name, shuffle, seed):
+        # interface that contains transforms and actual data points
         idata = _get_idata(dataset_name)
         idata.download_data()
 
@@ -153,9 +154,9 @@ class DataManager(object):
         self._test_trsf = idata.test_trsf
         self._common_trsf = idata.common_trsf
 
-        # Order
-        # order is seems to be already defined inside idata
+        # order
         order = [i for i in range(len(np.unique(self._train_targets)))]
+        # shuffle class indices 
         if shuffle:
             np.random.seed(seed)
             order = np.random.permutation(len(order)).tolist()
@@ -163,8 +164,6 @@ class DataManager(object):
             order = idata.class_order
         self._class_order = order
         logging.info(self._class_order)
-
-        # Map indices
         self._train_targets = _map_new_class_index(
             self._train_targets, self._class_order
         )
