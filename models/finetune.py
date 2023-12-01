@@ -37,30 +37,16 @@ class Finetune(BaseLearner):
 
     def incremental_train(self, data_manager):
         self._cur_task += 1
-        self._total_classes = self._known_classes + data_manager.get_task_size(
-            self._cur_task
-        )
+        self._total_classes = self._known_classes + data_manager.get_task_size(self._cur_task)
         # incorporate new classes into the classifier
         self._network.update_fc(self._total_classes)
-        logging.info(
-            "Learning on {}-{}".format(self._known_classes, self._total_classes)
-        )
+        logging.info("Learning on {}-{}".format(self._known_classes, self._total_classes))
 
         # setup datasets and dataloaders
-        train_dataset = data_manager.get_dataset(
-            np.arange(self._known_classes, self._total_classes),
-            source="train",
-            mode="train",
-        )
-        self.train_loader = DataLoader(
-            train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
-        )
-        test_dataset = data_manager.get_dataset(
-            np.arange(0, self._total_classes), source="test", mode="test"
-        )
-        self.test_loader = DataLoader(
-            test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
-        )
+        train_dataset = data_manager.get_dataset(np.arange(self._known_classes, self._total_classes), source="train", mode="train")
+        self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+        test_dataset = data_manager.get_dataset(np.arange(0, self._total_classes), source="test", mode="test")
+        self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
         # train 
         if len(self._multiple_gpus) > 1:
@@ -169,9 +155,7 @@ class Finetune(BaseLearner):
                 logits = self._network(inputs)["logits"]
 
                 fake_targets = targets - self._known_classes
-                loss_clf = F.cross_entropy(
-                    logits[:, self._known_classes :], fake_targets
-                )
+                loss_clf = F.cross_entropy(logits[:, self._known_classes :], fake_targets)
 
                 loss = loss_clf
 
