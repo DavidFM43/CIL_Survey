@@ -23,7 +23,7 @@ milestones = [40, 70]
 lrate_decay = 0.1
 batch_size = 128
 weight_decay = 2e-4
-num_workers = 8
+num_workers = 2
 
 
 class Finetune(BaseLearner):
@@ -44,9 +44,9 @@ class Finetune(BaseLearner):
 
         # setup datasets and dataloaders
         train_dataset = data_manager.get_dataset(np.arange(self._known_classes, self._total_classes), source="train", mode="train")
-        self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+        self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, persistent_workers=True)
         test_dataset = data_manager.get_dataset(np.arange(0, self._total_classes), source="test", mode="test")
-        self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+        self.test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, persistent_workers=True)
 
         # train 
         if len(self._multiple_gpus) > 1:
